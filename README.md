@@ -1,238 +1,213 @@
-# AI
-<!doctype html>
-<html lang="en">
+AI web browser 
+<!DOCTYPE html>
+<html lang="hi">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>JACK — Login</title>
-  <style>
-    :root{--blue:#000080;--bg:#f2f2f2}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg)}
-    .header{background:var(--blue);color:#fff;padding:14px 16px;text-align:center;font-weight:800;letter-spacing:2px;font-size:20px;position:sticky;top:0;z-index:20}
-    .container{max-width:420px;margin:40px auto;padding:12px}
-    .card{background:#fff;border-radius:12px;padding:22px;box-shadow:0 8px 30px rgba(2,6,23,0.08);text-align:center}
-    .title{font-size:28px;margin:6px 0 10px}
-    .subtitle{color:#555;margin-bottom:12px}
-    input[type="text"],input[type="password"],input[type="number"]{
-      width:100%;padding:12px;border-radius:8px;border:1px solid #d0d0d0;
-      margin:8px 0;font-size:15px
-    }
-    .btn{display:inline-block;width:100%;padding:12px;border-radius:8px;background:var(--blue);
-      color:#fff;border:0;font-weight:700;cursor:pointer;margin-top:12px;font-size:16px}
-    .btn:hover{background:#0010cc}
-    .hidden{display:none}
-    .welcome-name{font-size:28px;margin:12px 0}
-    .name-style{
-      font-size:32px;font-weight:900;
-      background:linear-gradient(90deg,#ff0000,#ff9900,#33cc33,#3399ff,#9933ff);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      text-shadow:2px 2px 4px rgba(0,0,0,0.3);letter-spacing:2px;
-    }
-    .qr{margin-top:18px}
-    .qr img{width:200px;height:200px;border-radius:10px;border:6px solid var(--blue);background:#fff;padding:6px}
-    .logout,.scanner-btn{display:inline-block;margin-top:18px;padding:10px 18px;background:#444;color:#fff;border-radius:8px;text-decoration:none}
-    video{width:100%;margin-top:12px;border-radius:8px}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AI Web Browser</title>
+<style>
+  :root {
+    --bg:#0f1724; --glass:rgba(255,255,255,0.05);
+    --accent:#3b82f6; --text:#e6eef8; --muted:#a0aec0;
+  }
+  body.light {
+    --bg:#f3f4f6; --glass:rgba(0,0,0,0.05);
+    --accent:#2563eb; --text:#111827; --muted:#4b5563;
+  }
+  html,body {
+    height:100%;margin:0;
+    background:var(--bg);color:var(--text);
+    font-family:"Segoe UI",Roboto,sans-serif;
+  }
+  .browser {display:flex;flex-direction:column;height:100vh;gap:10px;padding:10px;}
+  .title-bar {
+    width:100%;text-align:center;font-weight:700;
+    font-size:18px;background:var(--glass);
+    padding:8px;border-radius:8px;
+  }
+  .top {display:flex;align-items:center;gap:10px;position:relative;}
+  .omnibox {flex:1;display:flex;align-items:center;gap:8px;background:var(--glass);padding:6px 8px;border-radius:8px;}
+  .omnibox input {flex:1;background:transparent;border:0;outline:0;color:var(--text);font-size:15px;}
+  .go {background:var(--accent);color:#fff;border:0;padding:6px 12px;border-radius:6px;cursor:pointer;}
+  .settings-btn {background:var(--glass);border:0;color:var(--text);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:15px;}
+  .settings-menu {
+    display:none;position:absolute;right:0;top:50px;background:rgba(10,15,25,0.95);
+    border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px;z-index:1000;
+    min-width:180px;backdrop-filter:blur(10px);
+  }
+  body.light .settings-menu {background:rgba(255,255,255,0.95);}
+  .settings-menu button {
+    display:block;width:100%;text-align:left;background:transparent;border:0;color:var(--text);
+    padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px;
+  }
+  .settings-menu button:hover {background:rgba(255,255,255,0.08);}
+  .tabs {display:flex;gap:6px;overflow:auto;padding:4px;}
+  .tab {padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.04);cursor:pointer;}
+  .tab.active {background:rgba(59,130,246,0.2);color:#fff;}
+  .iframe-wrap {flex:1;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);}
+  iframe {width:100%;height:100%;border:0;}
+  .bottom {display:flex;gap:10px;align-items:center;padding:8px;background:rgba(255,255,255,0.03);border-radius:10px;flex-wrap:wrap;}
+  .list {display:flex;gap:8px;overflow:auto;}
+  .chip {padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.05);font-size:13px;cursor:pointer;white-space:nowrap;}
+  .chip:hover {background:rgba(255,255,255,0.08);}
+  .small {font-size:12px;color:var(--muted);}
+</style>
 </head>
 <body>
+<div class="browser">
 
-  <!-- Top header -->
-  <div class="header">🌟 <span class="name-style">WELCOME JACK</span> 🌟</div>
+  <div class="title-bar">🌐 AI Web Browser</div>
 
-  <div class="container">
-    <!-- LOGIN -->
-    <div id="loginCard" class="card">
-      <div class="title"><span class="name-style">JACK</span></div>
-      <div class="subtitle">Enter your mobile number and PIN</div>
-      <input id="mobileField" type="text" placeholder="Enter your mobile number" />
-      <input id="pinField" type="password" placeholder="Enter your PIN" />
-      <button class="btn" onclick="sendCode()">Send Code</button>
-
-      <!-- Confirm Code Box -->
-      <div id="codeBox" class="hidden">
-        <input id="codeField" type="number" placeholder="Enter confirmation code" />
-        <button class="btn" onclick="handleLogin()">Confirm & Login</button>
-      </div>
+  <div class="top">
+    <div class="omnibox">
+      <input id="address" placeholder="URL या खोज लिखें..."/>
+      <button class="go" id="go">Go</button>
     </div>
-
-    <!-- WELCOME -->
-    <div id="welcomeCard" class="card hidden">
-      <div class="welcome-name" id="welcomeName">
-        <span class="name-style">WELCOME JACK</span> 🔞
-      </div>
-      <div class="subtitle">You have successfully logged in.</div>
-
-      <div class="qr">
-        <h3>Your QR Code</h3>
-        <img id="qrImage" src="" alt="QR Code">
-      </div>
-
-      <!-- Scanner Button -->
-      <a href="#" class="scanner-btn" onclick="toggleScanner();return false;">Open Scanner</a>
-      <div id="scannerBox" class="hidden">
-        <video id="preview"></video>
-      </div>
-
-      <!-- YouTube Link -->
-      <div style="margin-top:15px;">
-        <a href="https://youtube.com/@aiai-g5b?si=kBMRFoeYFpFhhT8f" 
-           target="_blank" 
-           style="display:inline-block;padding:10px 18px;background:#cc0000;color:#fff;
-                  border-radius:8px;text-decoration:none;font-weight:600;">
-           ▶ Visit My YouTube
-        </a>
-      </div>
-
-      <!-- Logout -->
-      <a href="#" class="logout" onclick="doLogout();return false;">Log Out</a>
+    <button class="settings-btn" id="settingsBtn">⚙️</button>
+    <div class="settings-menu" id="settingsMenu">
+      <button id="back">⬅ Back</button>
+      <button id="forward">➡ Forward</button>
+      <button id="reload">⟳ Reload</button>
+      <button id="home">🏠 Home</button>
+      <button id="newtab">➕ New Tab</button>
+      <button id="bookmark">★ Bookmark</button>
+      <button id="theme">🌓 Theme</button>
     </div>
   </div>
 
-<!-- QR Scanner Library -->
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <div class="tabs" id="tabs"></div>
+  <div class="iframe-wrap"><iframe id="viewer" sandbox="allow-same-origin allow-forms allow-scripts allow-popups"></iframe></div>
+
+  <div class="bottom">
+    <div>
+      <strong class="small">🔖 Bookmarks:</strong>
+      <div id="bookmarks" class="list"></div>
+    </div>
+
+    <!-- Shortcuts -->
+    <div class="list" style="margin-left:20px;">
+      <div class="chip" onclick="openExternal('https://www.google.com')">Google</div>
+      <div class="chip" onclick="openExternal('https://www.google.com/chrome/')">Chrome</div>
+      <div class="chip" onclick="openExternal('https://www.youtube.com')">YouTube</div>
+    </div>
+
+    <div style="margin-left:auto;">
+      <strong class="small">🕓 History:</strong>
+      <div id="history" class="list"></div>
+    </div>
+  </div>
+</div>
 
 <script>
-  let generatedCode=null;
+const viewer=document.getElementById('viewer');
+const addr=document.getElementById('address');
+const tabsEl=document.getElementById('tabs');
+const bookmarksEl=document.getElementById('bookmarks');
+const historyEl=document.getElementById('history');
+const settingsBtn=document.getElementById('settingsBtn');
+const settingsMenu=document.getElementById('settingsMenu');
+const themeBtn=document.getElementById('theme');
+let tabs=[],active=null;
 
-  function sendCode(){
-    const mobile=document.getElementById("mobileField").value.trim();
-    const pin=document.getElementById("pinField").value.trim();
+const HOME="https://duckduckgo.com";
 
-    if(mobile==="" || pin===""){
-      alert("❌ Please enter mobile number and PIN first.");
-      return;
-    }
+// 🔹 open external sites (Google, YouTube, Chrome)
+function openExternal(url){ window.open(url, '_blank'); }
 
-    // Random 6-digit code generate
-    generatedCode=Math.floor(100000+Math.random()*900000);
-    alert("✅ Your confirmation code is: "+generatedCode);
+function normalize(q){
+  q=q.trim();if(!q)return HOME;
+  if(!q.includes('.')&&!q.startsWith('http'))return 'https://duckduckgo.com/?q='+encodeURIComponent(q);
+  if(/^[a-z]+:\/\//i.test(q))return q;
+  return 'https://'+q;
+}
 
-    // Show confirm code input box
-    document.getElementById("codeBox").classList.remove("hidden");
+function addTab(url){
+  const id='t'+Date.now();
+  tabs.push({id,url});
+  active=id;
+  renderTabs();load(url);
+}
+
+function renderTabs(){
+  tabsEl.innerHTML='';
+  tabs.forEach(t=>{
+    const el=document.createElement('div');
+    el.className='tab'+(t.id===active?' active':'');
+    el.textContent=(t.url.length>25?t.url.slice(0,25)+'...':t.url);
+    el.onclick=()=>{active=t.id;load(t.url);}
+    tabsEl.appendChild(el);
+  });
+}
+
+function load(q){
+  const url=normalize(q);
+  addr.value=q;
+  viewer.src=url;
+  saveHistory(url);
+}
+
+function saveHistory(url){
+  let h=JSON.parse(localStorage.getItem('aiweb_hist')||'[]');
+  h.unshift({url,time:new Date().toLocaleString()});
+  h=h.slice(0,20);
+  localStorage.setItem('aiweb_hist',JSON.stringify(h));
+  renderHistory();
+}
+
+function renderHistory(){
+  const h=JSON.parse(localStorage.getItem('aiweb_hist')||'[]');
+  historyEl.innerHTML='';
+  h.forEach(x=>{
+    const c=document.createElement('div');
+    c.className='chip';
+    c.textContent=x.url.slice(0,15);
+    c.onclick=()=>{addr.value=x.url;load(x.url);}
+    historyEl.appendChild(c);
+  });
+}
+
+function addBookmark(url){
+  let b=JSON.parse(localStorage.getItem('aiweb_book')||'[]');
+  if(!b.find(x=>x.url===url)){
+    b.unshift({url});localStorage.setItem('aiweb_book',JSON.stringify(b));
   }
+  renderBookmarks();
+}
 
-  function handleLogin(){
-    const code=document.getElementById("codeField").value.trim();
+function renderBookmarks(){
+  const b=JSON.parse(localStorage.getItem('aiweb_book')||'[]');
+  bookmarksEl.innerHTML='';
+  b.forEach(x=>{
+    const c=document.createElement('div');
+    c.className='chip';c.textContent=x.url.slice(0,15);
+    c.onclick=()=>{addr.value=x.url;load(x.url);}
+    bookmarksEl.appendChild(c);
+  });
+}
 
-    if(code==="" || code!=generatedCode){
-      alert("❌ Invalid confirmation code.");
-      return;
-    }
+settingsBtn.onclick=()=>settingsMenu.style.display=settingsMenu.style.display==="block"?"none":"block";
+document.addEventListener('click',e=>{
+  if(!settingsMenu.contains(e.target)&&e.target!==settingsBtn)
+    settingsMenu.style.display="none";
+});
 
-    // Success → show welcome
-    document.getElementById("loginCard").classList.add("hidden");
-    document.getElementById("welcomeCard").classList.remove("hidden");
+themeBtn.onclick=()=>{
+  document.body.classList.toggle('light');
+  localStorage.setItem('aiweb_theme',document.body.classList.contains('light')?'light':'dark');
+};
 
-    const mobile=document.getElementById("mobileField").value.trim();
-    const pin=document.getElementById("pinField").value.trim();
+document.getElementById('go').onclick=()=>load(addr.value);
+document.getElementById('home').onclick=()=>load(HOME);
+document.getElementById('newtab').onclick=()=>addTab(HOME);
+document.getElementById('bookmark').onclick=()=>addBookmark(addr.value);
+document.getElementById('back').onclick=()=>viewer.contentWindow.history.back();
+document.getElementById('forward').onclick=()=>viewer.contentWindow.history.forward();
+document.getElementById('reload').onclick=()=>viewer.src=viewer.src;
+addr.addEventListener('keydown',e=>{if(e.key==='Enter')load(addr.value);});
 
-    const data=`${mobile} | PIN: ${pin} | Logged in at ${new Date().toLocaleString()}`;
-    document.getElementById("qrImage").src=
-      "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data="+encodeURIComponent(data);
-
-    // Reset
-    document.getElementById("mobileField").value="";
-    document.getElementById("pinField").value="";
-    document.getElementById("codeField").value="";
-    document.getElementById("codeBox").classList.add("hidden");
-    generatedCode=null;
-  }
-
-  function doLogout(){
-    document.getElementById("welcomeCard").classList.add("hidden");
-    document.getElementById("loginCard").classList.remove("hidden");
-    stopScanner();
-  }
-
-  // QR Scanner
-  let scanner=null;
-  function toggleScanner(){
-    const box=document.getElementById("scannerBox");
-    if(box.classList.contains("hidden")){
-      box.classList.remove("hidden");
-      startScanner();
-    }else{
-      box.classList.add("hidden");
-      stopScanner();
-    }
-  }
-
-  function startScanner(){
-    scanner=new Html5Qrcode("preview");
-    scanner.start({facingMode:"environment"},{fps:10,qrbox:250},
-      qrCodeMessage=>{
-        alert("Scanned: "+qrCodeMessage);
-        stopScanner();
-        document.getElementById("scannerBox").classList.add("hidden");
-      });
-  }
-
-  function stopScanner(){
-    if(scanner){scanner.stop().catch(()=>{});scanner=null;}
-  }
+addTab(HOME);
+renderBookmarks();
+renderHistory();
 </script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Upload Form</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .error-message {
-            color: red;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-
-    <h1>Upload PDF Document</h1>
-
-    <form id="pdfUploadForm" action="/upload_pdf" method="post" enctype="multipart/form-data">
-        <div>
-            <label for="pdfFile">Choose PDF file:</label>
-            <input type="file" id="pdfFile" name="pdfFile" accept="application/pdf">
-        </div>
-        <div class="error-message" id="fileError"></div>
-        <div>
-            <button type="submit">Upload PDF</button>
-        </div>
-    </form>
-
-    <script>
-        document.getElementById('pdfUploadForm').addEventListener('submit', function(event) {
-            const fileInput = document.getElementById('pdfFile');
-            const fileError = document.getElementById('fileError');
-            const file = fileInput.files[0];
-
-            fileError.textContent = ''; // Clear previous errors
-
-            if (!file) {
-                fileError.textContent = 'Please select a file to upload.';
-                event.preventDefault(); // Prevent form submission
-                return;
-            }
-
-            // Check if the file is a PDF
-            if (file.type !== 'application/pdf') {
-                fileError.textContent = 'Only PDF documents are allowed.';
-                event.preventDefault(); // Prevent form submission
-                return;
-            }
-
-            // Note: Preventing image documents *within* a PDF is a server-side task.
-            // Client-side JavaScript cannot inspect the content of a PDF file.
-            // This client-side code only validates the file type as 'application/pdf'.
-        });
-    </script>
-
 </body>
 </html>
